@@ -124,9 +124,10 @@ public class Connection extends Thread {
 	}
 	
 	public static void fetchData(ArrayList<JSONObject> paintDataList) {
+		System.out.println(paintDataList);
 		String jsonString = paintDataList.stream().map(Object::toString)
-                .collect(Collectors.joining(", "));
-		System.out.println(jsonString);
+                .collect(Collectors.joining("-"));
+
 		for(int i=0;i<connections.size();i++) {
 			Connection con = connections.get(i);
 			try {

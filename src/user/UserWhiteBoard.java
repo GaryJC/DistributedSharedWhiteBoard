@@ -14,6 +14,7 @@ import javax.swing.Painter;
 import javax.swing.border.EmptyBorder;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JColorChooser;
@@ -27,6 +28,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -55,7 +57,6 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 	private JFrame frame;
 	static JPanel panel = new JPanel();
 	
-	public static UserConnection userConnection;
 	public static Socket userSocket;
 
 	private static JSONObject createJSON() {
@@ -69,6 +70,18 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 		jsonData.put("x_end", x_end);
 		jsonData.put("y_end", y_end);
 		return jsonData;
+	}
+	
+	private static JSONObject parseResString(String res) {
+		JSONObject resJSON = null;
+		try {
+			JSONParser parser = new JSONParser();
+			resJSON = (JSONObject) parser.parse(res);
+		} catch (Exception e) {
+//			e.printStackTrace();
+			System.out.println("Exception: " + e);
+		}
+		return resJSON;
 	}
 
 	/**
@@ -280,7 +293,21 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 //		System.out.println(paintDataList);
 //	}
 
-//	public void draw(Graphics2D g, ArrayList<JSONObject> paintDataList) {
-//		System.out.println("ss");
-//	}
+	public static void draw(String paintDataList) {
+		String [] list = paintDataList.split("-");
+		for(int i=0;i<list.length;i++) {
+			JSONObject paintJson = parseResString(list[i]);
+			if(paintJson.get("tool").equals("Line")) {
+				System.out.println(paintJson.get("x_start"));
+				x_start = (int) (long) paintJson.get("x_start");
+				y_start = (int) (long) paintJson.get("y_start");
+				x_end = (int) (long) paintJson.get("x_end");
+				y_end = (int) (long) paintJson.get("y_end");
+				graph.setColor(color);
+				graph.setStroke(new BasicStroke(1));
+				graph.drawLine(x_start,y_start,x_end,y_end);
+//				panel.repaint();
+			}
+		}
+	}
 }

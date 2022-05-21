@@ -46,7 +46,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 	JSONObject paintData;
 	ArrayList<JSONObject> paintDataList = new ArrayList<JSONObject>();
 	static JPanel panel = new JPanel();
-	Connection connection = new Connection(null);
+//	Connection connection = new Connection(null);
 
 	private JSONObject createJSON() {
 		JSONObject paintJson = new JSONObject();
@@ -235,6 +235,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 			paintData = createJSON();
 			paintDataList.add(paintData);
 			System.out.println(paintDataList);
+			Connection.fetchData(paintDataList);
 //			try {
 //				
 //			}catch{

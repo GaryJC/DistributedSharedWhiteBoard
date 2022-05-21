@@ -105,10 +105,12 @@ public class Client {
 			while (true) {
 				String request = input.readUTF();	
 //				new UserWhiteBoard();
-				System.out.println(request.equals("authorized"));
+//				System.out.println(request);
 				if(request.equals("authorized")) {
-					System.out.println("sss");
 					new UserWhiteBoard();
+				}else {
+					System.out.println(request);
+					UserWhiteBoard.draw(request);
 				}
 				
 //				JSONObject resJSON = parseResString(request);
