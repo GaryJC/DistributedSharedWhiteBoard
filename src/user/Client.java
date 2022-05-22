@@ -7,11 +7,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
+import javax.swing.JOptionPane;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import manager.WhiteBoard;
+//import client.Connection;
+//import manager.WhiteBoard;
 
 public class Client {
 	static String serverIPAddress;
@@ -75,7 +80,7 @@ public class Client {
 		}
 
 		try {
-			output.writeUTF(createJSON().toJSONString());
+			output.writeUTF("userName-"+userName);
 			output.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -108,7 +113,12 @@ public class Client {
 //				System.out.println(request);
 				if(request.equals("authorized")) {
 					new UserWhiteBoard();
-				}else {
+				}else if(request.equals("existed")){
+					JOptionPane.showConfirmDialog(null, "The username is already existed");
+				}else if(request.equals("refused")){
+					JOptionPane.showConfirmDialog(null, "Your application is refused by manager");
+				}
+				else {
 					System.out.println(request);
 					UserWhiteBoard.draw(request);
 				}
@@ -118,5 +128,19 @@ public class Client {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void fetchData(ArrayList<JSONObject> paintDataList) {
+		System.out.println(paintDataList);
+		String jsonString = paintDataList.stream().map(Object::toString)
+                .collect(Collectors.joining("-"));
+			try {
+				output.writeUTF(jsonString);
+				output.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
 	}
 }

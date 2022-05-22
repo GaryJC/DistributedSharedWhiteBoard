@@ -14,6 +14,7 @@ import javax.swing.Painter;
 import javax.swing.border.EmptyBorder;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JColorChooser;
@@ -26,9 +27,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.Panel;
+import javax.swing.JButton;
 
 //import org.json.JSONObject;
 
@@ -39,10 +42,14 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 	static String userName;
 //	static Painter canvas;
 	static Color color = Color.black;
-	String RGB = "0 0 0";
-	int x_start, y_start, x_end, y_end;
+	static String RGB = "0 0 0";
+	static int x_start;
+	static int y_start;
+	static int x_end;
+	static int y_end;
 	static Graphics2D graph;
 	static String tool = "Line";
+	static String text = "";
 	JSONObject paintData;
 	ArrayList<JSONObject> paintDataList = new ArrayList<JSONObject>();
 	static JPanel panel = new JPanel();
@@ -56,7 +63,20 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 		paintJson.put("y_start", y_start);
 		paintJson.put("x_end", x_end);
 		paintJson.put("y_end", y_end);
+		paintJson.put("text", text);
 		return paintJson;
+	}
+	
+	private static JSONObject parseResString(String res) {
+		JSONObject resJSON = null;
+		try {
+			JSONParser parser = new JSONParser();
+			resJSON = (JSONObject) parser.parse(res);
+		} catch (Exception e) {
+//			e.printStackTrace();
+			System.out.println("Exception: " + e);
+		}
+		return resJSON;
 	}
 
 	/**
@@ -183,7 +203,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				}
 			}
 		});
-		colorButton.setBounds(528, 11, 70, 22);
+		colorButton.setBounds(629, 11, 70, 22);
 		getContentPane().add(colorButton);
 
 		Button kickButton = new Button("Kick");
@@ -191,14 +211,22 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		kickButton.setBounds(630, 11, 70, 22);
-		getContentPane().add(kickButton);
-
+		kickButton.setBounds(725, 11, 70, 22);
+		getContentPane().add(kickButton);  
 		
 		panel.setBackground(Color.WHITE);
 		panel.setForeground(Color.BLACK);
-		panel.setBounds(29, 69, 706, 341);
+		panel.setBounds(35, 56, 706, 341);
 		getContentPane().add(panel);
+		
+		Button textButton = new Button("Text");
+		textButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tool = "Text";
+			}
+		});
+		textButton.setBounds(523, 11, 70, 22);
+		getContentPane().add(textButton);
 		panel.addMouseListener(this);
 //		panel.repaint();
 //		System.out.println(this.graph);
@@ -249,9 +277,8 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 			paintDataList.add(paintData);
 			break;
 		case "Text":
-			String text = JOptionPane.showInputDialog("Input text");
+			text = JOptionPane.showInputDialog("Input text");
 			if (text != null) {
-//				Font font = new Font(null, Font.PLAIN);
 				graph.drawString(text, x_end, y_end);
 				paintData = createJSON();
 				paintDataList.add(paintData);
@@ -304,7 +331,33 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 //		System.out.println(paintDataList);
 //	}
 
-	public void draw(Graphics2D g, ArrayList<JSONObject> paintDataList) {
-		System.out.println("ss");
+	public static void draw(String[] list) {
+//		String [] list = paintDataList.split("-");
+		System.out.println(list);
+		for(int i=0;i<list.length;i++) {
+			JSONObject paintJson = parseResString(list[i]);
+			x_start = (int) (long) paintJson.get("x_start");
+			y_start = (int) (long) paintJson.get("y_start");
+			x_end = (int) (long) paintJson.get("x_end");
+			y_end = (int) (long) paintJson.get("y_end");
+			RGB = (String) paintJson.get("RGB");	
+			String[] RGBList = RGB.split(" ");
+			graph.setColor(new Color(Integer.parseInt(RGBList[0]), Integer.parseInt(RGBList[1]), Integer.parseInt(RGBList[2])));
+			if(paintJson.get("tool").equals("Line")) {
+				graph.setStroke(new BasicStroke(1));
+				graph.drawLine(x_start,y_start,x_end,y_end);
+//				panel.repaint();
+			}else if(paintJson.get("tool").equals("Circle")) {
+				int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
+				graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
+			}else if(paintJson.get("tool").equals("Rect")) {
+				graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
+						Math.abs(y_start - y_end));
+			}else if(paintJson.get("tool").equals("Text")) {
+				text = (String) paintJson.get("text");
+				System.out.println(text);
+				graph.drawString(text, x_end, y_end);
+			}
+		}
 	}
 }

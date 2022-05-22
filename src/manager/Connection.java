@@ -69,35 +69,54 @@ public class Connection extends Thread {
 		String request;
 		try {
 			while ((request = input.readUTF()) != null) {
-				JSONObject resJSON = parseResString(request);
-				userName = (String) resJSON.get("userName");
-				System.out.println(userNames);
-				
-				if(userNames.contains(userName)) {
-					output.writeUTF("existed");
-					output.flush();
-					socket.close();
-				}else {
-					int joinPopup = JOptionPane.showConfirmDialog(null, userName + "wants to join", "Ok", JOptionPane.INFORMATION_MESSAGE);
-					if(JOptionPane.YES_OPTION == joinPopup) {
-						userNames.add(userName);
-						isAuth = true;
-//						output.writeUTF(createJSON().toJSONString());
-						output.writeUTF("authorized");
+				System.out.println(request);
+				String [] list = request.split("-");
+				if(list[0].equals("userName")) {
+					userName = list[1];
+					if(userNames.contains(userName)) {
+						output.writeUTF("existed");
 						output.flush();
+						socket.close();
 					}else {
-						isAuth = false;
-						output.writeUTF(createJSON().toJSONString());
-						output.flush();
-						//LaunchServer.connections.remove(this)
+						int joinPopup = JOptionPane.showConfirmDialog(null, userName + " wants to share the board", "Ok", JOptionPane.INFORMATION_MESSAGE);
+						if(JOptionPane.YES_OPTION == joinPopup) {
+							userNames.add(userName);
+							isAuth = true;
+//							output.writeUTF(createJSON().toJSONString());
+							output.writeUTF("authorized");
+							output.flush();
+						}else {
+							isAuth = false;
+							output.writeUTF("refused");
+							output.flush();
+							//LaunchServer.connections.remove(this)
+						}
 					}
-//					System.out.println(ans);
-				
+				}else {
+					WhiteBoard.draw(list);
+					syncData(request);
 				}
+//				JSONObject resJSON = parseResString(request);
+//				userName = (String) resJSON.get("userName");
+
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	private void syncData(String request) {
+		// TODO Auto-generated method stub
+		for(int i=0;i<connections.size();i++) {
+			Connection con = connections.get(i);
+			try {
+				con.output.writeUTF(request);
+				con.output.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -139,4 +158,5 @@ public class Connection extends Thread {
 			}
 		}
 	}
+	
 }
