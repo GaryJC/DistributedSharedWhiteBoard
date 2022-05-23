@@ -50,14 +50,18 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 	static Graphics2D graph;
 	static String tool = "Line";
 	static String text = "";
+	static String type = "draw";
+	static String response = "";
 	JSONObject paintData;
-	ArrayList<JSONObject> paintDataList = new ArrayList<JSONObject>();
+	static ArrayList<JSONObject> paintDataList = new ArrayList<JSONObject>();
 	static JPanel panel = new JPanel();
 //	Connection connection = new Connection(null);
 
-	private JSONObject createJSON() {
+	public static JSONObject createJSON() {
 		JSONObject paintJson = new JSONObject();
 		paintJson.put("tool", tool);
+		paintJson.put("type", type);
+		paintJson.put("response", response);
 		paintJson.put("RGB", RGB);
 		paintJson.put("x_start", x_start);
 		paintJson.put("y_start", y_start);
@@ -246,6 +250,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 //			graph.setColor(color);
 //		}
 		graph.setColor(color);
+		type = "draw";
 //		System.out.println(x_start);
 	}
 
@@ -263,7 +268,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 			paintData = createJSON();
 			paintDataList.add(paintData);
 			System.out.println(paintDataList);
-			Connection.fetchData(paintDataList);
+//			Connection.fetchData(paintDataList);
 //			try {
 //				
 //			}catch{

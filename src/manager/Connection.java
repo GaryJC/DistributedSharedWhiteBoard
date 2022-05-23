@@ -33,19 +33,21 @@ public class Connection extends Thread {
 	public static int clientID = 0;
 
 	public boolean kick = false;
-	static Boolean isAuth = false;
+	static String type = "join";
+	static String response = "";
 
 	public Connection(Socket socket) {
 		// TODO Auto-generated constructor stub
 		this.socket = socket;
 	}
-	
+
 	private static JSONObject createJSON() {
 		JSONObject userJson = new JSONObject();
-		userJson.put("isAuth", isAuth);
+		userJson.put("type", type);
+		userJson.put("response", response);
 		return userJson;
 	}
-	
+
 	private static JSONObject parseResString(String res) {
 		JSONObject resJSON = null;
 		try {
@@ -69,30 +71,62 @@ public class Connection extends Thread {
 		String request;
 		try {
 			while ((request = input.readUTF()) != null) {
-				System.out.println(request);
-				String [] list = request.split("-");
-				if(list[0].equals("userName")) {
+				System.out.println("req: "+request);
+			
+				String[] list = request.split("-");
+				if (list[0].equals("userName")) {
 					userName = list[1];
-					if(userNames.contains(userName)) {
-						output.writeUTF("existed");
+					type = "join";
+					if (userNames.contains(userName)) {
+						response = "existed";
+						String jsonData = createJSON().toJSONString();
+//						System.out.println("jd: "+jsonData);
+						output.writeUTF(jsonData);
 						output.flush();
 						socket.close();
-					}else {
-						int joinPopup = JOptionPane.showConfirmDialog(null, userName + " wants to share the board", "Ok", JOptionPane.INFORMATION_MESSAGE);
-						if(JOptionPane.YES_OPTION == joinPopup) {
+					} else {
+						int joinPopup = JOptionPane.showConfirmDialog(null, userName + " wants to share the board",
+								"Ok", JOptionPane.INFORMATION_MESSAGE);
+						if (JOptionPane.YES_OPTION == joinPopup) {
 							userNames.add(userName);
-							isAuth = true;
-//							output.writeUTF(createJSON().toJSONString());
-							output.writeUTF("authorized");
+//							isAuth = true;
+							
+//							String jsonString = WhiteBoard.paintDataList.stream().map(Object::toString).collect(Collectors.joining("-"));
+//							if(!jsonString.isEmpty()) {
+//								for (int i = 0; i < connections.size(); i++) {
+//									Connection con = connections.get(i);
+//									try {
+//										con.output.writeUTF(jsonString);
+//										con.output.flush();
+//									} catch (IOException e) {
+//										// TODO Auto-generated catch block
+//										e.printStackTrace();
+//									}
+//								}
+//							}
+							response = "authorized";
+							ArrayList<JSONObject> dataList = new ArrayList<JSONObject>();
+							JSONObject jsonData = createJSON();
+							dataList.add(jsonData);
+							dataList.addAll(WhiteBoard.paintDataList);
+							System.out.println("za: "+WhiteBoard.paintDataList);
+							String js = dataList.stream().map(Object::toString).collect(Collectors.joining("-"));
+							output.writeUTF(js);
+//							output.writeUTF("authorized");
+//							output.writeUTF(jsonString);
 							output.flush();
-						}else {
-							isAuth = false;
-							output.writeUTF("refused");
+						} else {
+//							isAuth = false;
+							response = "refused";
+							String jsonData = createJSON().toJSONString();
+							output.writeUTF(jsonData);
+//							output.writeUTF("refused");
+							
 							output.flush();
-							//LaunchServer.connections.remove(this)
+							// LaunchServer.connections.remove(this)
 						}
 					}
-				}else {
+				} else {
 					WhiteBoard.draw(list);
 					syncData(request);
 				}
@@ -108,7 +142,7 @@ public class Connection extends Thread {
 
 	private void syncData(String request) {
 		// TODO Auto-generated method stub
-		for(int i=0;i<connections.size();i++) {
+		for (int i = 0; i < connections.size(); i++) {
 			Connection con = connections.get(i);
 			try {
 				con.output.writeUTF(request);
@@ -141,22 +175,20 @@ public class Connection extends Thread {
 			System.out.println("IOException: " + e);
 		}
 	}
-	
-	public static void fetchData(ArrayList<JSONObject> paintDataList) {
-		System.out.println(paintDataList);
-		String jsonString = paintDataList.stream().map(Object::toString)
-                .collect(Collectors.joining("-"));
 
-		for(int i=0;i<connections.size();i++) {
-			Connection con = connections.get(i);
-			try {
-				con.output.writeUTF(jsonString);
-				con.output.flush();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	public static void fetchData(ArrayList<JSONObject> paintDataList) {
+		String jsonString = paintDataList.stream().map(Object::toString).collect(Collectors.joining("-"));
+		if(!jsonString.isEmpty()) {
+			for (int i = 0; i < connections.size(); i++) {
+				Connection con = connections.get(i);
+				try {
+					con.output.writeUTF(jsonString);
+					con.output.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
-	
 }

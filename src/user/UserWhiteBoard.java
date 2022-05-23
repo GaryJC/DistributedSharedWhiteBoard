@@ -38,7 +38,7 @@ import java.awt.Panel;
 //import org.json.JSONObject;
 
 @SuppressWarnings("serial")
-public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotionListener {
+public class UserWhiteBoard extends JFrame{
 //	static String serverIPAddress;
 //	static int serverPort;
 //	static String userName;
@@ -50,21 +50,23 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 	static int x_end;
 	static int y_end;
 	static Graphics2D graph;
-	static String tool = "Line";
+//	static String tool = "Line";
 	static String text = "";
-	static Boolean isAuth = false;
+	static String type = "draw";
+	
 	JSONObject paintData;
 	ArrayList<JSONObject> paintDataList = new ArrayList<JSONObject>();
 	private JFrame frame;
 	static JPanel panel = new JPanel();
-	
+	static PaintPanel paintPanel;
+
 //	public static Socket userSocket;
 
 	private static JSONObject createJSON() {
 		JSONObject jsonData = new JSONObject();
-		jsonData.put("isAuth", isAuth);
 //		jsonData.put("userName", userName);
-		jsonData.put("tool", tool);
+		jsonData.put("tool", PaintPanel.tool);
+		jsonData.put("type", type);
 		jsonData.put("RGB", RGB);
 		jsonData.put("x_start", x_start);
 		jsonData.put("y_start", y_start);
@@ -73,7 +75,7 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 		jsonData.put("text", text);
 		return jsonData;
 	}
-	
+
 	private static JSONObject parseResString(String res) {
 		JSONObject resJSON = null;
 		try {
@@ -88,38 +90,21 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 
 	/**
 	 * Launch the application.
+	 * @param test 
 	 */
 
-//	public void run() {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					UserWhiteBoard frame = new UserWhiteBoard();
-//					frame.setVisible(true);
-//					graph = (Graphics2D)panel.getGraphics();
-////					System.out.println(graph);
-//				} catch (Exception e) {
-//					System.out.println("e");
-//				}
-//			}
-//		});
-//	}
-
-//	public int notification(String userName) {
-//		int option = JOptionPane.showConfirmDialog(null, userName + " wants to join", "OK",
-//				JOptionPane.INFORMATION_MESSAGE);
-//		return option;
-//	}
-	
 	public UserWhiteBoard() {
 		initialize();
 //		frame.setVisible(true);
 //		graph = (Graphics2D)panel.getGraphics();
+//		draw(test);
 	}
+
 
 	/**
 	 * Create the frame.
-	 * @return 
+	 * 
+	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void initialize() {
@@ -131,7 +116,7 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 		Button lineButton = new Button("Line");
 		lineButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tool = "Line";
+				PaintPanel.tool = "Line";
 			}
 		});
 		lineButton.setBounds(114, 11, 70, 22);
@@ -140,7 +125,7 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 		Button circleButton = new Button("Circle");
 		circleButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tool = "Circle";
+				PaintPanel.tool = "Circle";
 			}
 		});
 		circleButton.setBounds(217, 11, 70, 22);
@@ -149,7 +134,7 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 		Button rectButton = new Button("Rectangle");
 		rectButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tool = "Rect";
+				PaintPanel.tool = "Rect";
 			}
 		});
 		rectButton.setBounds(319, 11, 70, 22);
@@ -158,7 +143,7 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 		Button triButton = new Button("Triangle");
 		triButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tool = "Triangle";
+				PaintPanel.tool = "Triangle";
 			}
 		});
 		triButton.setBounds(422, 11, 70, 22);
@@ -170,17 +155,17 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 				final Panel colorPanel = new Panel();
 				Color chosenColor = JColorChooser.showDialog(colorPanel, "Choose Color", null);
 				if (chosenColor != null) {
-					color = chosenColor;
+					PaintPanel.color = chosenColor;
 				}
 			}
 		});
 		colorButton.setBounds(614, 11, 70, 22);
 		frame.getContentPane().add(colorButton);
-		
+
 		Button textButton = new Button("Text");
 		textButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tool = "Text";
+				PaintPanel.tool = "Text";
 			}
 		});
 		textButton.setBounds(518, 11, 70, 22);
@@ -193,148 +178,170 @@ public class UserWhiteBoard extends JFrame implements MouseListener, MouseMotion
 		});
 		kickButton.setBounds(710, 11, 70, 22);
 		frame.getContentPane().add(kickButton);
-
 		
-		panel.setBackground(Color.WHITE);
-		panel.setForeground(Color.BLACK);
-		panel.setBounds(29, 69, 706, 341);
-		frame.getContentPane().add(panel);
-			
-		panel.addMouseListener(this);
+//		frame.add(new JPanel() {
+//		    @Override
+//		    protected void paintComponent(Graphics graph) {
+//		        super.paintComponent(graph);
+//		        setBackground(Color.WHITE);
+//				setForeground(Color.BLACK);
+//				setBounds(29, 69, 706, 341);
+//		    }
+//		});
+		
+		paintPanel = new PaintPanel();
+		paintPanel.setBackground(Color.WHITE);
+		paintPanel.setForeground(Color.BLACK);
+		paintPanel.setBounds(29, 69, 706, 341);
+		PaintPanel.setList(Client.paintDataList);
+		frame.getContentPane().add(paintPanel);
+
+//		panel.setBackground(Color.WHITE);
+//		panel.setForeground(Color.BLACK);
+//		panel.setBounds(29, 69, 706, 341);
+//		frame.getContentPane().add(panel);
+//
+//		panel.addMouseListener(this);
 //		panel.repaint();
 //		System.out.println(this.graph);
 		frame.setVisible(true);
-		graph = (Graphics2D)panel.getGraphics();
+		graph = (Graphics2D) panel.getGraphics();
 	}
 
 //	public void setG(Graphics g) {
 //		this.graph = (Graphics2D) g;
 //	}
 
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		x_start = e.getX();
-		y_start = e.getY();
+//	@Override
+//	public void mousePressed(MouseEvent e) {
+//		// TODO Auto-generated method stub
+//		x_start = e.getX();
+//		y_start = e.getY();
+////		graph.setColor(color);
+////		if (!graph.getColor().equals(color)) {
+////			graph.setColor(color);
+////		}
 //		graph.setColor(color);
-//		if (!graph.getColor().equals(color)) {
-//			graph.setColor(color);
-//		}
-		graph.setColor(color);
-//		System.out.println(x_start);
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		x_end = e.getX();
-		y_end = e.getY();
-		RGB = color.getRed() + " " + color.getGreen() + " " + color.getBlue();
-		switch (tool) {
-		case "Line":
-//			graph.setColor(color);
-			graph.setStroke(new BasicStroke(1));
-			graph.drawLine(x_start, y_start, x_end, y_end);
-			paintData = createJSON();
-			paintDataList.add(paintData);
-//			System.out.println(paintDataList);
-			Client.fetchData(paintDataList);
-//			try {
-//				
-//			}catch{
-//				
+////		System.out.println(x_start);
+//	}
+//
+//	@Override
+//	public void mouseReleased(MouseEvent e) {
+//		// TODO Auto-generated method stub
+//		x_end = e.getX();
+//		y_end = e.getY();
+//		RGB = color.getRed() + " " + color.getGreen() + " " + color.getBlue();
+//		switch (tool) {
+//		case "Line":
+////			graph.setColor(color);
+//			graph.setStroke(new BasicStroke(1));
+//			graph.drawLine(x_start, y_start, x_end, y_end);
+//			paintData = createJSON();
+//			paintDataList.add(paintData);
+////			System.out.println(paintDataList);
+//			Client.fetchData(paintDataList);
+////			try {
+////				
+////			}catch{
+////				
+////			}
+//			break;
+//		case "Circle":
+//			int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
+//			graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
+//			paintData = createJSON();
+//			paintDataList.add(paintData);
+//			Client.fetchData(paintDataList);
+//			break;
+//		case "Text":
+//			text = JOptionPane.showInputDialog("Input text");
+//			if (text != null) {
+//				graph.drawString(text, x_end, y_end);
+//				paintData = createJSON();
+//				paintDataList.add(paintData);
+//				Client.fetchData(paintDataList);
 //			}
-			break;
-		case "Circle":
-			int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
-			graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
-			paintData = createJSON();
-			paintDataList.add(paintData);
-			Client.fetchData(paintDataList);
-			break;
-		case "Text":
-			text = JOptionPane.showInputDialog("Input text");
-			if (text != null) {
-				graph.drawString(text, x_end, y_end);
-				paintData = createJSON();
-				paintDataList.add(paintData);
-				Client.fetchData(paintDataList);
-			}
-			break;
-		case "Rect":
-			graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
-					Math.abs(y_start - y_end));
-			paintData = createJSON();
-			paintDataList.add(paintData);
-			Client.fetchData(paintDataList);
-			break;
-		}
-//		 boardCast
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
+//			break;
+//		case "Rect":
+//			graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
+//					Math.abs(y_start - y_end));
+//			paintData = createJSON();
+//			paintDataList.add(paintData);
+//			Client.fetchData(paintDataList);
+//			break;
+//		}
+////		 boardCast
+//	}
+//
+//	@Override
+//	public void mouseMoved(MouseEvent e) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void mouseClicked(MouseEvent e) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void mouseEntered(MouseEvent e) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void mouseExited(MouseEvent e) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void mouseDragged(MouseEvent e) {
+//		// TODO Auto-generated method stub
+//
+//	}
 
 //	public void paint(Graphics g) {
 //		super.paint(g);
 ////		draw((Graphics2D)g, paintDataList);
-//		System.out.println(paintDataList);
+//		System.out.println("SSss");
 //	}
 
 	public static void draw(String paintDataList) {
-		String [] list = paintDataList.split("-");
-		System.out.println(list);
-		for(int i=0;i<list.length;i++) {
-			JSONObject paintJson = parseResString(list[i]);
-			x_start = (int) (long) paintJson.get("x_start");
-			y_start = (int) (long) paintJson.get("y_start");
-			x_end = (int) (long) paintJson.get("x_end");
-			y_end = (int) (long) paintJson.get("y_end");
-			RGB = (String) paintJson.get("RGB");	
-			String[] RGBList = RGB.split(" ");
-			graph.setColor(new Color(Integer.parseInt(RGBList[0]), Integer.parseInt(RGBList[1]), Integer.parseInt(RGBList[2])));
-			if(paintJson.get("tool").equals("Line")) {
-				graph.setStroke(new BasicStroke(1));
-				graph.drawLine(x_start,y_start,x_end,y_end);
-//				panel.repaint();
-			}else if(paintJson.get("tool").equals("Circle")) {
-				int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
-				graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
-			}else if(paintJson.get("tool").equals("Rect")) {
-				graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
-						Math.abs(y_start - y_end));
-			}else if(paintJson.get("tool").equals("Text")) {
-				text = (String) paintJson.get("text");
-				System.out.println(text);
-				graph.drawString(text, x_end, y_end);
+		System.out.println("dddd: "+paintDataList);
+		if(paintDataList.isEmpty()) {
+			graph.drawLine(0, 0, 0, 0);
+		}else {
+			String[] list = paintDataList.split("-");
+			for (int i = 0; i < list.length; i++) {
+				JSONObject paintJson = parseResString(list[i]);
+				x_start = (int) (long) paintJson.get("x_start");
+				y_start = (int) (long) paintJson.get("y_start");
+				x_end = (int) (long) paintJson.get("x_end");
+				y_end = (int) (long) paintJson.get("y_end");
+				RGB = (String) paintJson.get("RGB");
+				String[] RGBList = RGB.split(" ");
+				graph.setColor(new Color(Integer.parseInt(RGBList[0]), Integer.parseInt(RGBList[1]),
+						Integer.parseInt(RGBList[2])));
+				if (paintJson.get("tool").equals("Line")) {
+					graph.setStroke(new BasicStroke(1));
+					graph.drawLine(x_start, y_start, x_end, y_end);
+//						panel.repaint();
+				} else if (paintJson.get("tool").equals("Circle")) {
+					int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
+					graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
+				} else if (paintJson.get("tool").equals("Rect")) {
+					graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
+							Math.abs(y_start - y_end));
+				} else if (paintJson.get("tool").equals("Text")) {
+					text = (String) paintJson.get("text");
+//					System.out.println(text);
+					graph.drawString(text, x_end, y_end);
+				}
 			}
-		}
+		}	
 	}
+	
 }
