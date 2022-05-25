@@ -34,6 +34,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.Panel;
+import java.awt.ScrollPane;
+import java.awt.TextField;
+
+import javax.swing.JTextField;
+import java.awt.TextArea;
 
 //import org.json.JSONObject;
 
@@ -59,6 +64,9 @@ public class UserWhiteBoard extends JFrame{
 	private JFrame frame;
 	static JPanel panel = new JPanel();
 	static PaintPanel paintPanel;
+	private JTextField chatField;
+	static String chatText = "";
+	public static TextArea chatArea = new TextArea();
 
 //	public static Socket userSocket;
 
@@ -73,6 +81,15 @@ public class UserWhiteBoard extends JFrame{
 		jsonData.put("x_end", x_end);
 		jsonData.put("y_end", y_end);
 		jsonData.put("text", text);
+		return jsonData;
+	}
+	
+	private static JSONObject createChatJSON() {
+		JSONObject jsonData = new JSONObject();
+//		jsonData.put("userName", userName);
+		jsonData.put("type", type);
+		jsonData.put("chatText", chatText);
+		jsonData.put("userName", Client.userName);
 		return jsonData;
 	}
 
@@ -192,9 +209,39 @@ public class UserWhiteBoard extends JFrame{
 		paintPanel = new PaintPanel();
 		paintPanel.setBackground(Color.WHITE);
 		paintPanel.setForeground(Color.BLACK);
-		paintPanel.setBounds(29, 69, 706, 341);
+		paintPanel.setBounds(29, 69, 706, 300);
 		PaintPanel.setList(Client.paintDataList);
 		frame.getContentPane().add(paintPanel);
+		
+		Button chatButton = new Button("Send");
+		chatButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				type = "chat";
+				chatText = chatField.getText();
+				if(!chatText.isEmpty()) {
+//					JSONObject chatJson = createChatJSON();
+					try {
+						Client.output.writeUTF("chat-"+chatText+"-"+Client.userName);
+						Client.output.flush();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}				
+				}
+			}
+		});
+		chatButton.setBounds(501, 378, 70, 22);
+		frame.getContentPane().add(chatButton);
+		
+		chatField = new JTextField();
+		chatField.setBounds(319, 380, 173, 20);
+		frame.getContentPane().add(chatField);
+		chatField.setColumns(10);
+		
+		
+		chatArea.setEditable(false);
+		chatArea.setBounds(29, 375, 273, 130);
+		frame.getContentPane().add(chatArea);
 
 //		panel.setBackground(Color.WHITE);
 //		panel.setForeground(Color.BLACK);
@@ -343,5 +390,4 @@ public class UserWhiteBoard extends JFrame{
 			}
 		}	
 	}
-	
 }

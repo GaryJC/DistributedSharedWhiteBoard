@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
+import org.json.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -133,8 +134,6 @@ public class Client {
 				String[] list = request.split("-");
 				System.out.println("req: "+request);
 				JSONObject paintJson = parseResString(list[0]);
-			
-//				new UserWhiteBoard();
 	
 				String type = (String) paintJson.get("type");
 				if (type.equals("join")) {
@@ -155,42 +154,13 @@ public class Client {
 						new UserWhiteBoard();
 						UserWhiteBoard.paintPanel.repaint();
 					}
-//					String test = input.readUTF();
-//					System.out.println("test "+ test);
-//					String[] list = request.split("-");
-//					for (int i = 0; i < list.length; i++) {
-//						JSONObject paintJson = parseResString(list[i]);
-//						x_start = (int) (long) paintJson.get("x_start");
-//						y_start = (int) (long) paintJson.get("y_start");
-//						x_end = (int) (long) paintJson.get("x_end");
-//						y_end = (int) (long) paintJson.get("y_end");
-//						tool = (String)paintJson.get("tool");
-//						RGB = (String) paintJson.get("RGB");
-//						JSONObject paintData = createJSON();
-//						paintDataList.add(paintData);
-//					}
-//					PaintPanel.setList(paintDataList);
-//					new UserWhiteBoard();	
-//					UserWhiteBoard.paintPanel.repaint();
-//					output.writeUTF("update");
-//					UserWhiteBoard.draw(test);
-//					dsb.repaint();
-//					PaintPanel.paintDataList
-//					UserWhiteBoard.draw(test);
-//					paintPanel = new Pain
 					else if (resp.equals("existed")) {
-						JOptionPane.showConfirmDialog(null, "The username is already existed");
+						JOptionPane.showMessageDialog(null, "The username is already existed");
 					} else if (resp.equals("refused")) {
-						JOptionPane.showConfirmDialog(null, "Your application is refused by manager");
+						JOptionPane.showMessageDialog(null, "Your application is refused by manager");
 					}
-//				}else if(request.equals("existed")){
-//					JOptionPane.showConfirmDialog(null, "The username is already existed");
-////					socket.close();
-//				}else if(request.equals("refused")){
-//					JOptionPane.showConfirmDialog(null, "Your application is refused by manager");
-////					socket.close();
 				}
-//				else if(!request.isEmpty()){
+
 				else if (type.equals("draw")) {
 					System.out.println("rr: " + request);
 
@@ -208,17 +178,22 @@ public class Client {
 
 					PaintPanel.setList(paintDataList);
 					UserWhiteBoard.paintPanel.repaint();
-//					PaintPanel.draw(request);
-//					dsb.repaint();
-//					UserWhiteBoard.draw(request);
-//					UserWhiteBoard.paintPanel.repaint();
-////					PaintPanel.draw(request);
-//					dsb.repaint();
+				}else if(type.equals("chat")) {
+					Object chatList = paintJson.get("chatList");
+					String slicedList = chatList.toString().substring(1, chatList.toString().length()-1);
+					String[] chatArr = slicedList.split(",");
+					UserWhiteBoard.chatArea.setText("");
+					for(int i =0;i<chatArr.length;i++) {
+//						System.out.println(chatArr[i]);
+						String[] chatDetail = chatArr[i].substring(1, chatArr[i].length()-1).split(":");
+						UserWhiteBoard.chatArea.append(chatDetail[0]+": "+chatDetail[1]+"\n");
+					}
 				}
-//				JSONObject resJSON = parseResString(request);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Disconnected with server."); 
+			System.out.println("Server closed or not launcehd");
+			System.exit(0);
 		}
 	}
 

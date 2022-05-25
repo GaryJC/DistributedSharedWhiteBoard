@@ -42,7 +42,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 	@Override
 	public void paint(Graphics graph) {
 		super.paint(graph);
-		System.out.println("ooo: "+paintDataList);
+		System.out.println("ooo: "+ paintDataList);
 		String jsonString = paintDataList.stream().map(Object::toString).collect(Collectors.joining("-"));
 		if(!jsonString.isEmpty()) {
 			String[] list = jsonString.split("-");

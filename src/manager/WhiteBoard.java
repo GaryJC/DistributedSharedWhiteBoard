@@ -16,6 +16,8 @@ import javax.swing.border.EmptyBorder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import user.Client;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
@@ -27,11 +29,19 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.IOException;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.Panel;
 import javax.swing.JButton;
+import javax.swing.JTextPane;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import java.awt.ScrollPane;
+import java.awt.TextArea;
+import java.awt.Point;
+import javax.swing.JTextField;
 
 //import org.json.JSONObject;
 
@@ -55,6 +65,8 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 	JSONObject paintData;
 	static ArrayList<JSONObject> paintDataList = new ArrayList<JSONObject>();
 	static JPanel panel = new JPanel();
+	private JTextField chatField;
+	public static TextArea chatArea = new TextArea();
 //	Connection connection = new Connection(null);
 
 	public static JSONObject createJSON() {
@@ -98,7 +110,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 		} else {
 			serverIPAddress = "localhost";
 			serverPort = 8888;
-			userName = "Default User";
+			userName = "Default Manager";
 		}
 
 //		System.out.println(userName);
@@ -220,7 +232,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 		
 		panel.setBackground(Color.WHITE);
 		panel.setForeground(Color.BLACK);
-		panel.setBounds(35, 56, 706, 341);
+		panel.setBounds(35, 56, 706, 320);
 		getContentPane().add(panel);
 		
 		Button textButton = new Button("Text");
@@ -231,6 +243,31 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 		});
 		textButton.setBounds(523, 11, 70, 22);
 		getContentPane().add(textButton);
+		
+		Button sendButton = new Button("Send");
+		sendButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+//				type = "chat";
+				if(!chatField.getText().isEmpty()) {
+					String chatText = "chat-"+chatField.getText()+"-"+userName;
+					Connection.syncChat(chatText.split("-"));
+				}
+			}
+		});
+		sendButton.setBounds(523, 392, 70, 22);
+		getContentPane().add(sendButton);
+		
+		chatField = new JTextField();
+		chatField.setBounds(346, 394, 174, 20);
+		getContentPane().add(chatField);
+		chatField.setColumns(10);
+		
+		
+		chatArea.setEditable(false);
+		chatArea.setBounds(32, 382, 298, 107);
+		getContentPane().add(chatArea);
+		
+		
 		panel.addMouseListener(this);
 //		panel.repaint();
 //		System.out.println(this.graph);
@@ -329,12 +366,6 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 		// TODO Auto-generated method stub
 
 	}
-
-//	public void paint(Graphics g) {
-//		super.paint(g);
-////		draw((Graphics2D)g, paintDataList);
-//		System.out.println(paintDataList);
-//	}
 
 	public static void draw(String[] list) {
 //		String [] list = paintDataList.split("-");
