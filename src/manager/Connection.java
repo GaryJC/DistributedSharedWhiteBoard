@@ -95,7 +95,7 @@ public class Connection extends Thread {
 							JSONObject jsonData = createJSON();
 							dataList.add(jsonData);
 							dataList.addAll(WhiteBoard.paintDataList);
-							System.out.println("za: " + WhiteBoard.paintDataList);
+//							System.out.println("za: " + WhiteBoard.paintDataList);
 							String js = dataList.stream().map(Object::toString).collect(Collectors.joining("-"));
 							output.writeUTF(js);
 							output.flush();

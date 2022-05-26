@@ -195,17 +195,7 @@ public class UserWhiteBoard extends JFrame{
 		});
 		kickButton.setBounds(710, 11, 70, 22);
 		frame.getContentPane().add(kickButton);
-		
-//		frame.add(new JPanel() {
-//		    @Override
-//		    protected void paintComponent(Graphics graph) {
-//		        super.paintComponent(graph);
-//		        setBackground(Color.WHITE);
-//				setForeground(Color.BLACK);
-//				setBounds(29, 69, 706, 341);
-//		    }
-//		});
-		
+	
 		paintPanel = new PaintPanel();
 		paintPanel.setBackground(Color.WHITE);
 		paintPanel.setForeground(Color.BLACK);
@@ -356,38 +346,42 @@ public class UserWhiteBoard extends JFrame{
 //		System.out.println("SSss");
 //	}
 
-	public static void draw(String paintDataList) {
-		System.out.println("dddd: "+paintDataList);
-		if(paintDataList.isEmpty()) {
-			graph.drawLine(0, 0, 0, 0);
-		}else {
-			String[] list = paintDataList.split("-");
-			for (int i = 0; i < list.length; i++) {
-				JSONObject paintJson = parseResString(list[i]);
-				x_start = (int) (long) paintJson.get("x_start");
-				y_start = (int) (long) paintJson.get("y_start");
-				x_end = (int) (long) paintJson.get("x_end");
-				y_end = (int) (long) paintJson.get("y_end");
-				RGB = (String) paintJson.get("RGB");
-				String[] RGBList = RGB.split(" ");
-				graph.setColor(new Color(Integer.parseInt(RGBList[0]), Integer.parseInt(RGBList[1]),
-						Integer.parseInt(RGBList[2])));
-				if (paintJson.get("tool").equals("Line")) {
-					graph.setStroke(new BasicStroke(1));
-					graph.drawLine(x_start, y_start, x_end, y_end);
-//						panel.repaint();
-				} else if (paintJson.get("tool").equals("Circle")) {
-					int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
-					graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
-				} else if (paintJson.get("tool").equals("Rect")) {
-					graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
-							Math.abs(y_start - y_end));
-				} else if (paintJson.get("tool").equals("Text")) {
-					text = (String) paintJson.get("text");
-//					System.out.println(text);
-					graph.drawString(text, x_end, y_end);
-				}
-			}
-		}	
-	}
+//	public static void draw(String paintDataList) {
+//		System.out.println("dddd: "+paintDataList);
+//		if(paintDataList.isEmpty()) {
+//			graph.drawLine(0, 0, 0, 0);
+//		}else {
+//			String[] list = paintDataList.split("-");
+//			for (int i = 0; i < list.length; i++) {
+//				JSONObject paintJson = parseResString(list[i]);
+//				x_start = (int) (long) paintJson.get("x_start");
+//				y_start = (int) (long) paintJson.get("y_start");
+//				x_end = (int) (long) paintJson.get("x_end");
+//				y_end = (int) (long) paintJson.get("y_end");
+//				RGB = (String) paintJson.get("RGB");
+//				String[] RGBList = RGB.split(" ");
+//				graph.setColor(new Color(Integer.parseInt(RGBList[0]), Integer.parseInt(RGBList[1]),
+//						Integer.parseInt(RGBList[2])));
+//				if (paintJson.get("tool").equals("Line")) {
+//					graph.setStroke(new BasicStroke(1));
+//					graph.drawLine(x_start, y_start, x_end, y_end);
+////						panel.repaint();
+//				} else if (paintJson.get("tool").equals("Circle")) {
+//					int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
+//					graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
+//				} else if (paintJson.get("tool").equals("Rect")) {
+//					graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
+//							Math.abs(y_start - y_end));
+//				} else if (paintJson.get("tool").equals("Text")) {
+//					text = (String) paintJson.get("text");
+////					System.out.println(text);
+//					graph.drawString(text, x_end, y_end);
+//				} else if(paintJson.get("tool").equals("Triangle")) {
+//					int [] x = {x_end, x_end+50, x_end-50};
+//					int [] y = {y_end, y_end+100, y_end+100};
+//					graph.drawPolygon(x, y, 3);
+//				}
+//			}
+//		}	
+//	}
 }

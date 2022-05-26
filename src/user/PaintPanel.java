@@ -66,9 +66,13 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 					graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
 							Math.abs(y_start - y_end));
 				} else if (paintJson.get("tool").equals("Text")) {
-					text = (String) paintJson.get("Text");
+					text = (String) paintJson.get("text");
 //					System.out.println(text);
 					graph.drawString(text, x_end, y_end);
+				} else if(paintJson.get("tool").equals("Triangle")) {
+					int [] x = {x_end, x_end+50, x_end-50};
+					int [] y = {y_end, y_end+100, y_end+100};
+					graph.drawPolygon(x, y, 3);
 				}
 			}
 		}
@@ -227,11 +231,6 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 			paintDataList.add(paintData);
 //			System.out.println(paintDataList);
 			Client.fetchData(paintDataList);
-//			try {
-//						
-//			}catch{
-//						
-//			}
 			break;
 		case "Circle":
 			int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
@@ -251,6 +250,13 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 			break;
 		case "Rect":
 //			graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end), Math.abs(y_start - y_end));
+			paintData = createJSON();
+			paintDataList.add(paintData);
+			Client.fetchData(paintDataList);
+			break;
+		case "Triangle":
+			int [] x = {x_end, x_end+50, x_end-50};
+			int [] y = {y_end, y_end+100, y_end+100};
 			paintData = createJSON();
 			paintDataList.add(paintData);
 			Client.fetchData(paintDataList);

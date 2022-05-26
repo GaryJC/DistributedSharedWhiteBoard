@@ -273,9 +273,6 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 //		System.out.println(this.graph);
 	}
 
-//	public void setG(Graphics g) {
-//		this.graph = (Graphics2D) g;
-//	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -304,13 +301,6 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 			graph.drawLine(x_start, y_start, x_end, y_end);
 			paintData = createJSON();
 			paintDataList.add(paintData);
-			System.out.println(paintDataList);
-//			Connection.fetchData(paintDataList);
-//			try {
-//				
-//			}catch{
-//				
-//			}
 			break;
 		case "Circle":
 			int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
@@ -332,8 +322,15 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 			paintData = createJSON();
 			paintDataList.add(paintData);
 			break;
+		case "Triangle":
+			int [] x = {x_end, x_end+50, x_end-50};
+			int [] y = {y_end, y_end+100, y_end+100};
+			graph.drawPolygon(x, y, 3);
+			paintData = createJSON();
+			paintDataList.add(paintData);
+			break;
 		}
-	
+		
 		Connection.fetchData(paintDataList);
 	}
 
@@ -393,6 +390,10 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				text = (String) paintJson.get("text");
 				System.out.println(text);
 				graph.drawString(text, x_end, y_end);
+			}else if(paintJson.get("tool").equals("Triangle")) {
+				int [] x = {x_end, x_end+50, x_end-50};
+				int [] y = {y_end, y_end+100, y_end+100};
+				graph.drawPolygon(x, y, 3);
 			}
 		}
 	}

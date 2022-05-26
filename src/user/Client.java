@@ -162,8 +162,6 @@ public class Client {
 				}
 
 				else if (type.equals("draw")) {
-					System.out.println("rr: " + request);
-
 					for (int i = 0; i < list.length; i++) {
 						paintJson = parseResString(list[i]);
 						x_start = (int) (long) paintJson.get("x_start");
@@ -171,6 +169,7 @@ public class Client {
 						x_end = (int) (long) paintJson.get("x_end");
 						y_end = (int) (long) paintJson.get("y_end");
 						tool = (String) paintJson.get("tool");
+						text = (String) paintJson.get("text");
 						RGB = (String) paintJson.get("RGB");
 						JSONObject paintData = createJSON();
 						paintDataList.add(paintData);
