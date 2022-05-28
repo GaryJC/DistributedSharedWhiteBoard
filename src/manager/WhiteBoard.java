@@ -1,56 +1,40 @@
 package manager;
 
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.Painter;
-import javax.swing.border.EmptyBorder;
+import javax.swing.JScrollPane;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import user.Client;
-
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
-import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Button;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.Panel;
-import javax.swing.JButton;
-import javax.swing.JTextPane;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import java.awt.ScrollPane;
 import java.awt.TextArea;
-import java.awt.Point;
 import javax.swing.JTextField;
-
-//import org.json.JSONObject;
 
 @SuppressWarnings("serial")
 public class WhiteBoard extends JFrame implements MouseListener, MouseMotionListener {
 	static String serverIPAddress;
 	static int serverPort;
 	static String userName;
-//	static Painter canvas;
 	static Color color = Color.black;
 	static String RGB = "0 0 0";
 	static int x_start;
@@ -67,8 +51,10 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 	static JPanel panel = new JPanel();
 	private JTextField chatField;
 	public static TextArea chatArea = new TextArea();
-//	Connection connection = new Connection(null);
+	static JList userList = new JList();
+	static JScrollPane scrollPane;
 
+	@SuppressWarnings("unchecked")
 	public static JSONObject createJSON() {
 		JSONObject paintJson = new JSONObject();
 		paintJson.put("tool", tool);
@@ -89,8 +75,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 			JSONParser parser = new JSONParser();
 			resJSON = (JSONObject) parser.parse(res);
 		} catch (Exception e) {
-//			e.printStackTrace();
-			System.out.println("Exception: " + e);
+			System.out.println("JSON parse error: " + e);
 		}
 		return resJSON;
 	}
@@ -105,7 +90,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				serverPort = Integer.parseInt(args[1]);
 				userName = args[2];
 			} catch (Exception e) {
-				System.out.println(e);
+				System.out.println("Arguments format not correct");
 			}
 		} else {
 			serverIPAddress = "localhost";
@@ -143,7 +128,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public WhiteBoard() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 844, 554);
+		setBounds(100, 100, 806, 594);
 		getContentPane().setLayout(null);
 		@SuppressWarnings("rawtypes")
 		JComboBox comboBox = new JComboBox();
@@ -179,7 +164,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				tool = "Line";
 			}
 		});
-		lineButton.setBounds(114, 11, 70, 22);
+		lineButton.setBounds(10, 39, 75, 22);
 		getContentPane().add(lineButton);
 
 		Button circleButton = new Button("Circle");
@@ -188,7 +173,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				tool = "Circle";
 			}
 		});
-		circleButton.setBounds(217, 11, 70, 22);
+		circleButton.setBounds(10, 67, 75, 22);
 		getContentPane().add(circleButton);
 
 		Button rectButton = new Button("Rectangle");
@@ -197,7 +182,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				tool = "Rect";
 			}
 		});
-		rectButton.setBounds(319, 11, 70, 22);
+		rectButton.setBounds(10, 95, 75, 22);
 		getContentPane().add(rectButton);
 
 		Button triButton = new Button("Triangle");
@@ -206,7 +191,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				tool = "Triangle";
 			}
 		});
-		triButton.setBounds(422, 11, 70, 22);
+		triButton.setBounds(10, 123, 75, 22);
 		getContentPane().add(triButton);
 
 		Button colorButton = new Button("Color");
@@ -219,20 +204,39 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				}
 			}
 		});
-		colorButton.setBounds(629, 11, 70, 22);
+		colorButton.setBounds(10, 179, 75, 22);
 		getContentPane().add(colorButton);
 
 		Button kickButton = new Button("Kick");
 		kickButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(userList.getSelectedValue()!=null) {
+					String selectedUser = userList.getSelectedValue().toString();
+					System.out.println(selectedUser);
+					for (int i= 0; i < Connection.connections.size(); i++) {
+						Connection perCon = Connection.connections.get(i);
+						if(selectedUser.equals(perCon.userName)) {
+							Connection.connections.remove(i);
+							Connection.userNames.remove(selectedUser);
+							userList.setListData(Connection.userNames.toArray());
+							scrollPane.repaint();
+							try {
+								perCon.socket.close();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+					}
+				}
 			}
 		});
-		kickButton.setBounds(725, 11, 70, 22);
+		kickButton.setBounds(10, 327, 75, 22);
 		getContentPane().add(kickButton);  
 		
 		panel.setBackground(Color.WHITE);
 		panel.setForeground(Color.BLACK);
-		panel.setBounds(35, 56, 706, 320);
+		panel.setBounds(95, 11, 685, 338);
 		getContentPane().add(panel);
 		
 		Button textButton = new Button("Text");
@@ -241,7 +245,7 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				tool = "Text";
 			}
 		});
-		textButton.setBounds(523, 11, 70, 22);
+		textButton.setBounds(10, 151, 75, 22);
 		getContentPane().add(textButton);
 		
 		Button sendButton = new Button("Send");
@@ -254,23 +258,32 @@ public class WhiteBoard extends JFrame implements MouseListener, MouseMotionList
 				}
 			}
 		});
-		sendButton.setBounds(523, 392, 70, 22);
+		sendButton.setBounds(710, 523, 70, 22);
 		getContentPane().add(sendButton);
 		
 		chatField = new JTextField();
-		chatField.setBounds(346, 394, 174, 20);
+		chatField.setBounds(95, 504, 609, 41);
 		getContentPane().add(chatField);
 		chatField.setColumns(10);
 		
 		
 		chatArea.setEditable(false);
-		chatArea.setBounds(32, 382, 298, 107);
+		chatArea.setBounds(95, 355, 685, 133);
 		getContentPane().add(chatArea);
 		
+		scrollPane = new JScrollPane(userList);
+		scrollPane.setBounds(10, 355, 75, 190);
+		getContentPane().add(scrollPane);
 		
 		panel.addMouseListener(this);
 //		panel.repaint();
 //		System.out.println(this.graph);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void setUserList(List<String> userNames) {
+		userList.setListData(userNames.toArray());
+		scrollPane.repaint();
 	}
 
 

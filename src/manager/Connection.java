@@ -3,26 +3,15 @@ package manager;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.rmi.server.RemoteStub;
-//import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.swing.JOptionPane;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import user.UserWhiteBoard;
-
-//import server.Connection;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 public class Connection extends Thread {
 	public Socket socket;
@@ -59,7 +48,7 @@ public class Connection extends Thread {
 			resJSON = (JSONObject) parser.parse(res);
 		} catch (Exception e) {
 //			e.printStackTrace();
-			System.out.println("Exception: " + e);
+			System.out.println("JSON parse error: " + e);
 		}
 		return resJSON;
 	}
@@ -90,12 +79,12 @@ public class Connection extends Thread {
 								"Ok", JOptionPane.INFORMATION_MESSAGE);
 						if (JOptionPane.YES_OPTION == joinPopup) {
 							userNames.add(userName);
+							WhiteBoard.setUserList(userNames);
 							response = "authorized";
 							ArrayList<JSONObject> dataList = new ArrayList<JSONObject>();
 							JSONObject jsonData = createJSON();
 							dataList.add(jsonData);
 							dataList.addAll(WhiteBoard.paintDataList);
-//							System.out.println("za: " + WhiteBoard.paintDataList);
 							String js = dataList.stream().map(Object::toString).collect(Collectors.joining("-"));
 							output.writeUTF(js);
 							output.flush();
@@ -137,7 +126,7 @@ public class Connection extends Thread {
 				con.output.flush();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Data sync error");
 			}
 		}
 	}
@@ -152,7 +141,7 @@ public class Connection extends Thread {
 				try {
 					socket = serverSocket.accept();
 				} catch (IOException e) {
-					System.out.println("IOException: " + e);
+					System.out.println("Socket accpet error");
 				}
 				Connection connection = new Connection(socket);
 				connections.add(connection);
@@ -160,7 +149,8 @@ public class Connection extends Thread {
 				System.out.println("Server received new connection");
 			}
 		} catch (IOException e) {
-			System.out.println("IOException: " + e);
+			System.out.println("Server already launced");
+			System.exit(1);
 		}
 	}
 
@@ -174,7 +164,7 @@ public class Connection extends Thread {
 					con.output.flush();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println("Data fetch error");
 				}
 			}
 		}
@@ -198,7 +188,7 @@ public class Connection extends Thread {
 				con.output.flush();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Chat sync error");
 			}
 		}
 	}

@@ -1,53 +1,23 @@
 package user;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.Painter;
-import javax.swing.border.EmptyBorder;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
-import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Button;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.Panel;
-import java.awt.ScrollPane;
-import java.awt.TextField;
-
 import javax.swing.JTextField;
 import java.awt.TextArea;
 
-//import org.json.JSONObject;
-
 @SuppressWarnings("serial")
 public class UserWhiteBoard extends JFrame{
-//	static String serverIPAddress;
-//	static int serverPort;
-//	static String userName;
-//	static Painter canvas;
 	static Color color = Color.black;
 	static String RGB = "0 0 0";
 	static int x_start;
@@ -55,7 +25,6 @@ public class UserWhiteBoard extends JFrame{
 	static int x_end;
 	static int y_end;
 	static Graphics2D graph;
-//	static String tool = "Line";
 	static String text = "";
 	static String type = "draw";
 	
@@ -67,26 +36,9 @@ public class UserWhiteBoard extends JFrame{
 	private JTextField chatField;
 	static String chatText = "";
 	public static TextArea chatArea = new TextArea();
-
-//	public static Socket userSocket;
-
-	private static JSONObject createJSON() {
-		JSONObject jsonData = new JSONObject();
-//		jsonData.put("userName", userName);
-		jsonData.put("tool", PaintPanel.tool);
-		jsonData.put("type", type);
-		jsonData.put("RGB", RGB);
-		jsonData.put("x_start", x_start);
-		jsonData.put("y_start", y_start);
-		jsonData.put("x_end", x_end);
-		jsonData.put("y_end", y_end);
-		jsonData.put("text", text);
-		return jsonData;
-	}
 	
 	private static JSONObject createChatJSON() {
 		JSONObject jsonData = new JSONObject();
-//		jsonData.put("userName", userName);
 		jsonData.put("type", type);
 		jsonData.put("chatText", chatText);
 		jsonData.put("userName", Client.userName);
@@ -112,9 +64,6 @@ public class UserWhiteBoard extends JFrame{
 
 	public UserWhiteBoard() {
 		initialize();
-//		frame.setVisible(true);
-//		graph = (Graphics2D)panel.getGraphics();
-//		draw(test);
 	}
 
 
@@ -127,7 +76,7 @@ public class UserWhiteBoard extends JFrame{
 	public void initialize() {
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setBounds(100, 100, 844, 554);
+		frame.setBounds(100, 100, 806, 594);
 		frame.getContentPane().setLayout(null);
 
 		Button lineButton = new Button("Line");
@@ -136,7 +85,7 @@ public class UserWhiteBoard extends JFrame{
 				PaintPanel.tool = "Line";
 			}
 		});
-		lineButton.setBounds(114, 11, 70, 22);
+		lineButton.setBounds(21, 11, 70, 22);
 		frame.getContentPane().add(lineButton);
 
 		Button circleButton = new Button("Circle");
@@ -145,7 +94,7 @@ public class UserWhiteBoard extends JFrame{
 				PaintPanel.tool = "Circle";
 			}
 		});
-		circleButton.setBounds(217, 11, 70, 22);
+		circleButton.setBounds(21, 39, 70, 22);
 		frame.getContentPane().add(circleButton);
 
 		Button rectButton = new Button("Rectangle");
@@ -154,7 +103,7 @@ public class UserWhiteBoard extends JFrame{
 				PaintPanel.tool = "Rect";
 			}
 		});
-		rectButton.setBounds(319, 11, 70, 22);
+		rectButton.setBounds(21, 67, 70, 22);
 		frame.getContentPane().add(rectButton);
 
 		Button triButton = new Button("Triangle");
@@ -163,7 +112,7 @@ public class UserWhiteBoard extends JFrame{
 				PaintPanel.tool = "Triangle";
 			}
 		});
-		triButton.setBounds(422, 11, 70, 22);
+		triButton.setBounds(21, 95, 70, 22);
 		frame.getContentPane().add(triButton);
 
 		Button colorButton = new Button("Color");
@@ -176,7 +125,7 @@ public class UserWhiteBoard extends JFrame{
 				}
 			}
 		});
-		colorButton.setBounds(614, 11, 70, 22);
+		colorButton.setBounds(21, 151, 70, 22);
 		frame.getContentPane().add(colorButton);
 
 		Button textButton = new Button("Text");
@@ -185,7 +134,7 @@ public class UserWhiteBoard extends JFrame{
 				PaintPanel.tool = "Text";
 			}
 		});
-		textButton.setBounds(518, 11, 70, 22);
+		textButton.setBounds(21, 123, 70, 22);
 		frame.getContentPane().add(textButton);
 
 		Button kickButton = new Button("Kick");
@@ -193,13 +142,13 @@ public class UserWhiteBoard extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		kickButton.setBounds(710, 11, 70, 22);
+		kickButton.setBounds(21, 179, 70, 22);
 		frame.getContentPane().add(kickButton);
 	
 		paintPanel = new PaintPanel();
 		paintPanel.setBackground(Color.WHITE);
 		paintPanel.setForeground(Color.BLACK);
-		paintPanel.setBounds(29, 69, 706, 300);
+		paintPanel.setBounds(110, 11, 659, 332);
 		PaintPanel.setList(Client.paintDataList);
 		frame.getContentPane().add(paintPanel);
 		
@@ -220,168 +169,20 @@ public class UserWhiteBoard extends JFrame{
 				}
 			}
 		});
-		chatButton.setBounds(501, 378, 70, 22);
+		chatButton.setBounds(699, 511, 70, 22);
 		frame.getContentPane().add(chatButton);
 		
 		chatField = new JTextField();
-		chatField.setBounds(319, 380, 173, 20);
+		chatField.setBounds(110, 496, 585, 36);
 		frame.getContentPane().add(chatField);
 		chatField.setColumns(10);
 		
 		
 		chatArea.setEditable(false);
-		chatArea.setBounds(29, 375, 273, 130);
+		chatArea.setBounds(110, 364, 659, 118);
 		frame.getContentPane().add(chatArea);
 
-//		panel.setBackground(Color.WHITE);
-//		panel.setForeground(Color.BLACK);
-//		panel.setBounds(29, 69, 706, 341);
-//		frame.getContentPane().add(panel);
-//
-//		panel.addMouseListener(this);
-//		panel.repaint();
-//		System.out.println(this.graph);
 		frame.setVisible(true);
 		graph = (Graphics2D) panel.getGraphics();
 	}
-
-//	public void setG(Graphics g) {
-//		this.graph = (Graphics2D) g;
-//	}
-
-//	@Override
-//	public void mousePressed(MouseEvent e) {
-//		// TODO Auto-generated method stub
-//		x_start = e.getX();
-//		y_start = e.getY();
-////		graph.setColor(color);
-////		if (!graph.getColor().equals(color)) {
-////			graph.setColor(color);
-////		}
-//		graph.setColor(color);
-////		System.out.println(x_start);
-//	}
-//
-//	@Override
-//	public void mouseReleased(MouseEvent e) {
-//		// TODO Auto-generated method stub
-//		x_end = e.getX();
-//		y_end = e.getY();
-//		RGB = color.getRed() + " " + color.getGreen() + " " + color.getBlue();
-//		switch (tool) {
-//		case "Line":
-////			graph.setColor(color);
-//			graph.setStroke(new BasicStroke(1));
-//			graph.drawLine(x_start, y_start, x_end, y_end);
-//			paintData = createJSON();
-//			paintDataList.add(paintData);
-////			System.out.println(paintDataList);
-//			Client.fetchData(paintDataList);
-////			try {
-////				
-////			}catch{
-////				
-////			}
-//			break;
-//		case "Circle":
-//			int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
-//			graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
-//			paintData = createJSON();
-//			paintDataList.add(paintData);
-//			Client.fetchData(paintDataList);
-//			break;
-//		case "Text":
-//			text = JOptionPane.showInputDialog("Input text");
-//			if (text != null) {
-//				graph.drawString(text, x_end, y_end);
-//				paintData = createJSON();
-//				paintDataList.add(paintData);
-//				Client.fetchData(paintDataList);
-//			}
-//			break;
-//		case "Rect":
-//			graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
-//					Math.abs(y_start - y_end));
-//			paintData = createJSON();
-//			paintDataList.add(paintData);
-//			Client.fetchData(paintDataList);
-//			break;
-//		}
-////		 boardCast
-//	}
-//
-//	@Override
-//	public void mouseMoved(MouseEvent e) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void mouseClicked(MouseEvent e) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void mouseEntered(MouseEvent e) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void mouseExited(MouseEvent e) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void mouseDragged(MouseEvent e) {
-//		// TODO Auto-generated method stub
-//
-//	}
-
-//	public void paint(Graphics g) {
-//		super.paint(g);
-////		draw((Graphics2D)g, paintDataList);
-//		System.out.println("SSss");
-//	}
-
-//	public static void draw(String paintDataList) {
-//		System.out.println("dddd: "+paintDataList);
-//		if(paintDataList.isEmpty()) {
-//			graph.drawLine(0, 0, 0, 0);
-//		}else {
-//			String[] list = paintDataList.split("-");
-//			for (int i = 0; i < list.length; i++) {
-//				JSONObject paintJson = parseResString(list[i]);
-//				x_start = (int) (long) paintJson.get("x_start");
-//				y_start = (int) (long) paintJson.get("y_start");
-//				x_end = (int) (long) paintJson.get("x_end");
-//				y_end = (int) (long) paintJson.get("y_end");
-//				RGB = (String) paintJson.get("RGB");
-//				String[] RGBList = RGB.split(" ");
-//				graph.setColor(new Color(Integer.parseInt(RGBList[0]), Integer.parseInt(RGBList[1]),
-//						Integer.parseInt(RGBList[2])));
-//				if (paintJson.get("tool").equals("Line")) {
-//					graph.setStroke(new BasicStroke(1));
-//					graph.drawLine(x_start, y_start, x_end, y_end);
-////						panel.repaint();
-//				} else if (paintJson.get("tool").equals("Circle")) {
-//					int diameter = Math.min(Math.abs(x_start - x_end), Math.abs(y_start - y_end));
-//					graph.drawOval(Math.min(x_start, x_end), Math.min(y_start, y_end), diameter, diameter);
-//				} else if (paintJson.get("tool").equals("Rect")) {
-//					graph.drawRect(Math.min(x_start, x_end), Math.min(y_start, y_end), Math.abs(x_start - x_end),
-//							Math.abs(y_start - y_end));
-//				} else if (paintJson.get("tool").equals("Text")) {
-//					text = (String) paintJson.get("text");
-////					System.out.println(text);
-//					graph.drawString(text, x_end, y_end);
-//				} else if(paintJson.get("tool").equals("Triangle")) {
-//					int [] x = {x_end, x_end+50, x_end-50};
-//					int [] y = {y_end, y_end+100, y_end+100};
-//					graph.drawPolygon(x, y, 3);
-//				}
-//			}
-//		}	
-//	}
 }
