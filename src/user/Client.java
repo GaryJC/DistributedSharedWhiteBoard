@@ -11,7 +11,6 @@ import javax.swing.JOptionPane;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-
 public class Client {
 	static String serverIPAddress;
 	static int serverPort;
@@ -74,19 +73,23 @@ public class Client {
 			socket = new Socket(serverIPAddress, serverPort);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Socket create error");
+			System.out.println("Server port or address not correct");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Socket create error");
+			System.out.println("Server port or address not correct");
 		}
 
 		try {
 			input = new DataInputStream(socket.getInputStream());
-			output = new DataOutputStream(socket.getOutputStream());
-//			System.out.println();
-		} catch (IOException e) {
+		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			System.out.println("Stream error");
+			System.out.println("Socket get input stream error");
+		}
+		try {
+			output = new DataOutputStream(socket.getOutputStream());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			System.out.println("Socket get output stream error");
 		}
 
 		try {
