@@ -122,6 +122,7 @@ public class Client {
 							x_end = (int) (long) data.get("x_end");
 							y_end = (int) (long) data.get("y_end");
 							tool = (String) data.get("tool");
+							text = (String) data.get("text");
 							RGB = (String) data.get("RGB");
 							JSONObject paintData = createJSON();
 							paintDataList.add(paintData);
